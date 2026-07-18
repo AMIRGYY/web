@@ -1,6 +1,393 @@
-fetch('https://api.jsonbin.io/v3/b/6a5a57edda38895dfe6bb757', {
-    headers: { 'X-Master-Key': '$2a$10$Y3uJQT23PdFg655lRv2f7eHwQeHurCL6FhUqAgahVxZBKOKaowlWG' }
-})
-.then(r => r.json())
-.then(d => console.log('✅ موفق:', d))
-.catch(e => console.error('❌ خطا:', e));
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تست اتصال JSONBin</title>
+    <style>
+        body {
+            background: #0f0c29;
+            color: #fff;
+            font-family: 'Tahoma', sans-serif;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 35px;
+            max-width: 700px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .success {
+            border-right: 4px solid #00b894;
+        }
+        .error {
+            border-right: 4px solid #ff6b6b;
+        }
+        .info {
+            border-right: 4px solid #6c63ff;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: #6c63ff;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .btn {
+            padding: 12px 30px;
+            background: #6c63ff;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.4);
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .result-box {
+            margin-top: 20px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .badge-success {
+            background: #00b894;
+        }
+        .badge-error {
+            background: #ff6b6b;
+        }
+        .badge-info {
+            background: #6c63ff;
+        }
+        .small {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>🔌 تست اتصال JSONBin</h1>
+        <p style="text-align:center; color:rgba(255,255,255,0.6); margin-bottom:20px;">
+            بررسی اتصال به دیتابیس ابری شما
+        </p>
+
+        <div id="testResult">
+            <div class="status info">
+                <span class="loading"></span> در حال بررسی اتصال...
+            </div>
+        </div>
+
+        <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn" onclick="runTest()">🔄 تست مجدد</button>
+            <button class="btn" style="background:#3f3d9e;" onclick="fetchDataManual()">📥 دریافت داده</button>
+            <button class="btn" style="background:#c0392b;" onclick="testWrite()">📤 تست نوشتن</button>
+        </div>
+
+        <div id="detailBox" class="result-box" style="display:none;">
+            <h3 style="margin:15px 0 10px 0;">📋 جزئیات</h3>
+            <pre id="detailContent">...</pre>
+        </div>
+
+        <div id="dataBox" class="result-box" style="display:none;">
+            <h3 style="margin:15px 0 10px 0;">📊 داده‌های فعلی</h3>
+            <pre id="dataContent">...</pre>
+        </div>
+
+        <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+            <p class="small">
+                🔑 Bin ID: <strong>6a5a57edda38895dfe6bb757</strong><br />
+                📌 در صورت خطا، این موارد را بررسی کنید:
+                <br />۱. اینترنت خود را بررسی کنید
+                <br />۲. VPN را خاموش کنید
+                <br />۳. در JSONBin، Bin خود را عمومی (Public) کنید
+                <br />۴. کلید API جدید از JSONBin بگیرید
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  تنظیمات JSONBin شما
+        // ============================================================
+        const BIN_ID = '6a5a57edda38895dfe6bb757';
+        const API_KEY = '$2a$10$Y3uJQT23PdFg655lRv2f7eHwQeHurCL6FhUqAgahVxZBKOKaowlWG';
+        const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+        const resultDiv = document.getElementById('testResult');
+        const detailBox = document.getElementById('detailBox');
+        const detailContent = document.getElementById('detailContent');
+        const dataBox = document.getElementById('dataBox');
+        const dataContent = document.getElementById('dataContent');
+
+        // ============================================================
+        //  تابع اصلی تست
+        // ============================================================
+        async function runTest() {
+            resultDiv.innerHTML = `
+                <div class="status info">
+                    <span class="loading"></span> در حال بررسی اتصال...
+                </div>
+            `;
+            detailBox.style.display = 'none';
+            dataBox.style.display = 'none';
+
+            const startTime = Date.now();
+
+            try {
+                console.log('🔄 ارسال درخواست به JSONBin...');
+                console.log('📌 آدرس:', URL);
+
+                const response = await fetch(URL, {
+                    headers: {
+                        'X-Master-Key': API_KEY
+                    }
+                });
+
+                const elapsed = Date.now() - startTime;
+                const status = response.status;
+
+                console.log('📡 وضعیت:', status);
+                console.log('⏱️ زمان:', elapsed + 'ms');
+
+                let responseText = await response.text();
+                let jsonData = null;
+                let parseError = null;
+
+                try {
+                    jsonData = JSON.parse(responseText);
+                } catch (e) {
+                    parseError = e.message;
+                }
+
+                // نمایش نتیجه
+                let html = '';
+
+                if (response.ok) {
+                    html += `
+                        <div class="status success">
+                            ✅ <strong>اتصال موفق!</strong><br />
+                            <span class="badge badge-success">${status}</span>
+                            ⏱️ ${elapsed}ms
+                        </div>
+                    `;
+                    if (jsonData) {
+                        const record = jsonData.record || {};
+                        const adsCount = (record.ads || []).length;
+                        const codesCount = (record.usedCodes || []).length;
+                        html += `
+                            <div class="status success" style="margin-top:10px;">
+                                📊 داده‌های موجود:<br />
+                                تعداد تبلیغات: <strong>${adsCount}</strong><br />
+                                تعداد کدهای استفاده شده: <strong>${codesCount}</strong>
+                            </div>
+                        `;
+                        // نمایش داده‌ها
+                        dataContent.textContent = JSON.stringify(jsonData, null, 2);
+                        dataBox.style.display = 'block';
+                    }
+                } else {
+                    html += `
+                        <div class="status error">
+                            ❌ <strong>خطا در اتصال!</strong><br />
+                            <span class="badge badge-error">${status}</span>
+                            ⏱️ ${elapsed}ms
+                        </div>
+                    `;
+                    if (status === 401) {
+                        html += `
+                            <div class="status error" style="margin-top:10px;">
+                                🔑 کلید API معتبر نیست. لطفاً از JSONBin یک کلید جدید بگیرید.
+                            </div>
+                        `;
+                    } else if (status === 404) {
+                        html += `
+                            <div class="status error" style="margin-top:10px;">
+                                📁 Bin ID پیدا نشد. آدرس Bin خود را بررسی کنید.
+                            </div>
+                        `;
+                    } else if (status === 429) {
+                        html += `
+                            <div class="status error" style="margin-top:10px;">
+                                ⏳ تعداد درخواست‌ها زیاد شد. چند دقیقه صبر کنید.
+                            </div>
+                        `;
+                    }
+                }
+
+                // نمایش جزئیات
+                detailContent.textContent = `
+                    آدرس: ${URL}
+                    وضعیت: ${status} ${response.statusText}
+                    زمان: ${elapsed}ms
+                    پاسخ خام: ${responseText.substring(0, 500)}${responseText.length > 500 ? '...' : ''}
+                    ${parseError ? 'خطا در解析 JSON: ' + parseError : ''}
+                `;
+                detailBox.style.display = 'block';
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('❌ خطا:', error);
+
+                let errorMsg = error.message;
+                let suggestion = '';
+
+                if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+                    suggestion = '🌐 اینترنت خود را بررسی کنید یا VPN را خاموش کنید.';
+                } else if (errorMsg.includes('CORS')) {
+                    suggestion = '🛡️ مشکل CORS. مطمئن شوید که Bin شما عمومی است.';
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ <strong>خطا در اتصال!</strong><br />
+                        <span class="badge badge-error">خطا</span>
+                        <br /><br />
+                        <strong>پیام خطا:</strong> ${errorMsg}
+                        ${suggestion ? `<br /><br />💡 ${suggestion}` : ''}
+                    </div>
+                `;
+
+                detailContent.textContent = `
+                    خطا: ${errorMsg}
+                    ${error.stack || ''}
+                    ${suggestion ? 'پیشنهاد: ' + suggestion : ''}
+                `;
+                detailBox.style.display = 'block';
+            }
+        }
+
+        // ============================================================
+        //  دریافت داده
+        // ============================================================
+        async function fetchDataManual() {
+            try {
+                const res = await fetch(URL, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                const data = await res.json();
+                alert('✅ داده دریافت شد!\n' + JSON.stringify(data, null, 2).substring(0, 300) + '...');
+                console.log('📊 داده:', data);
+            } catch (e) {
+                alert('❌ خطا: ' + e.message);
+            }
+        }
+
+        // ============================================================
+        //  تست نوشتن
+        // ============================================================
+        async function testWrite() {
+            if (!confirm('⚠️ این تست یک رکورد تست به دیتابیس شما اضافه می‌کند. ادامه می‌دهید؟')) return;
+
+            try {
+                // اول داده فعلی را بگیر
+                const res = await fetch(URL, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                const current = await res.json();
+                const record = current.record || { ads: [], usedCodes: [] };
+
+                // اضافه کردن رکورد تست
+                const testAd = {
+                    id: Date.now(),
+                    code: 'TEST' + Math.random().toString(36).substring(2, 6).toUpperCase(),
+                    fullname: 'کاربر تست',
+                    email: 'test@example.com',
+                    telegram: '@test',
+                    rubika: '@test',
+                    phone: '09120000000',
+                    product: 'محصول تست',
+                    link: 'https://example.com',
+                    hours: 24,
+                    amount: 100000,
+                    status: 'pending',
+                    created_at: new Date().toISOString(),
+                    approved_at: null,
+                    start_time: null,
+                    end_time: null,
+                    notify_message: null
+                };
+
+                record.ads.push(testAd);
+                if (!record.usedCodes) record.usedCodes = [];
+                record.usedCodes.push(testAd.code);
+
+                // ذخیره
+                const saveRes = await fetch(URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(record)
+                });
+
+                if (saveRes.ok) {
+                    alert('✅ رکورد تست با موفقیت اضافه شد!\nکد: ' + testAd.code);
+                    runTest();
+                } else {
+                    alert('❌ خطا در ذخیره: ' + saveRes.status);
+                }
+            } catch (e) {
+                alert('❌ خطا: ' + e.message);
+            }
+        }
+
+        // ============================================================
+        //  اجرای خودکار
+        // ============================================================
+        runTest();
+
+        console.log('🔌 صفحه تست JSONBin');
+        console.log('📌 برای تست مجدد، دکمه "تست مجدد" را بزنید.');
+    </script>
+
+</body>
+</html>
