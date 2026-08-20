@@ -5,123 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ YZ - هوش مصنوعی کامل</title>
     <style>
-        :root {
-            --bg: #0a0a0f;
-            --bg2: #111122;
-            --bg3: #1a1a2e;
-            --neon: #00ffff;
-            --neon2: #0088ff;
-            --danger: #ff0044;
-            --text: #e0e0e0;
-            --text2: #ffffff;
-            --border: #00ffff33;
-            --radius: 16px;
-            --radius-sm: 10px;
-        }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Vazirmatn',Tahoma; background:var(--bg); color:var(--text); height:100vh; display:flex; overflow:hidden; direction:rtl; }
+        body { font-family:'Vazirmatn',Tahoma; background:#0a0a0f; color:#e0e0e0; height:100vh; display:flex; overflow:hidden; direction:rtl; }
         
-        /* Sidebar */
-        .sidebar { width:280px; background:var(--bg2); border-left:1px solid var(--border); display:flex; flex-direction:column; padding:20px 15px; gap:15px; }
-        .logo { text-align:center; font-size:28px; font-weight:900; color:var(--neon); text-shadow:0 0 20px var(--neon),0 0 40px rgba(0,255,255,0.3); animation:glow 3s infinite; }
-        @keyframes glow { 0%,100%{opacity:1;} 50%{opacity:0.8;} }
-        .btn-new { padding:14px; background:linear-gradient(135deg,var(--neon),var(--neon2)); color:#000; border:none; border-radius:var(--radius); font-weight:700; font-size:15px; cursor:pointer; transition:0.3s; }
-        .btn-new:hover { transform:scale(1.03); box-shadow:0 6px 30px rgba(0,255,255,0.4); }
-        .select-model { padding:12px; background:var(--bg3); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); cursor:pointer; font-family:inherit; }
-        .history { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
-        .history-title { font-size:12px; color:#666; text-transform:uppercase; letter-spacing:1px; padding:8px 4px; border-bottom:1px solid var(--border); }
-        .conv-item { padding:12px; background:var(--bg3); border:1px solid transparent; border-radius:var(--radius-sm); cursor:pointer; transition:0.3s; position:relative; }
-        .conv-item:hover { border-color:var(--neon); background:rgba(0,255,255,0.05); }
-        .conv-item.active { border-color:var(--neon); background:rgba(0,255,255,0.08); }
-        .conv-title { font-size:13px; font-weight:600; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .conv-meta { font-size:11px; color:#888; display:flex; justify-content:space-between; margin-top:4px; }
-        .conv-delete { position:absolute; top:8px; left:8px; width:22px; height:22px; border-radius:50%; background:rgba(255,0,68,0.15); border:1px solid rgba(255,0,68,0.3); color:var(--danger); font-size:10px; display:none; align-items:center; justify-content:center; cursor:pointer; }
-        .conv-item:hover .conv-delete { display:flex; }
-        .sidebar-footer { text-align:center; font-size:11px; color:#444; padding-top:10px; border-top:1px solid var(--border); }
-        .hidden-btn { color:rgba(0,255,255,0.1); cursor:pointer; user-select:none; padding:5px; }
+        .sidebar { width:260px; background:#111122; border-left:1px solid #00ffff33; display:flex; flex-direction:column; padding:20px 15px; gap:12px; }
+        .logo { text-align:center; font-size:26px; font-weight:900; color:#00ffff; text-shadow:0 0 20px #00ffff; }
+        .btn-new { padding:12px; background:linear-gradient(135deg,#00ffff,#0088ff); color:#000; border:none; border-radius:12px; font-weight:700; cursor:pointer; font-size:14px; }
+        .btn-new:hover { opacity:0.8; }
+        .history { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+        .history-title { font-size:11px; color:#666; padding:8px 4px; border-bottom:1px solid #00ffff22; margin-bottom:5px; }
+        .conv-item { padding:10px 12px; background:#1a1a2e; border:1px solid transparent; border-radius:8px; cursor:pointer; font-size:12px; transition:0.3s; }
+        .conv-item:hover { border-color:#00ffff; }
+        .conv-item.active { border-color:#00ffff; background:#00ffff11; }
+        .sidebar-footer { text-align:center; font-size:10px; color:#444; padding-top:8px; border-top:1px solid #00ffff22; }
         
-        /* Main Area */
         .main { flex:1; display:flex; flex-direction:column; }
-        .header { padding:15px 25px; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-        .header-title { font-size:16px; font-weight:700; color:var(--text2); }
-        .status { display:flex; align-items:center; gap:8px; color:var(--neon); font-size:13px; }
-        .status-dot { width:10px; height:10px; border-radius:50%; background:var(--neon); box-shadow:0 0 10px var(--neon); animation:pulse 2s infinite; }
-        @keyframes pulse { 0%,100%{box-shadow:0 0 10px var(--neon);} 50%{box-shadow:0 0 25px var(--neon);} }
+        .header { padding:15px 20px; background:#111122; border-bottom:1px solid #00ffff33; display:flex; justify-content:space-between; align-items:center; }
+        .header-title { font-size:15px; font-weight:700; color:#fff; }
+        .status { color:#00ffff; font-size:12px; display:flex; align-items:center; gap:6px; }
+        .dot { width:8px; height:8px; border-radius:50%; background:#00ffff; box-shadow:0 0 10px #00ffff; }
         
-        .chat-area { flex:1; overflow-y:auto; padding:25px; display:flex; flex-direction:column; gap:15px; }
-        .message { max-width:75%; padding:14px 18px; border-radius:var(--radius); line-height:1.7; animation:msgIn 0.3s; }
-        @keyframes msgIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-        .user-msg { align-self:flex-start; background:linear-gradient(135deg,#1a2a6c,#0d47a1); color:white; border-bottom-right-radius:4px; }
-        .ai-msg { align-self:flex-end; background:var(--bg3); border:1px solid var(--border); border-bottom-left-radius:4px; }
-        .msg-tag { font-size:10px; color:var(--neon); margin-top:6px; display:inline-block; padding:2px 8px; border-radius:20px; background:rgba(0,255,255,0.1); }
-        .user-msg .msg-tag { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.7); }
+        .chat-area { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; }
+        .message { max-width:75%; padding:12px 16px; border-radius:14px; line-height:1.7; font-size:14px; }
+        .user-msg { align-self:flex-start; background:linear-gradient(135deg,#1a2a6c,#0d47a1); color:#fff; }
+        .ai-msg { align-self:flex-end; background:#1a1a2e; border:1px solid #00ffff33; }
+        .tag { font-size:10px; color:#00ffff; margin-top:5px; }
         
-        .typing { display:inline-flex; gap:5px; }
-        .typing span { width:7px; height:7px; border-radius:50%; background:var(--neon); animation:bounce 1.4s infinite; }
+        .input-area { padding:15px 20px; background:#111122; border-top:1px solid #00ffff33; }
+        .input-container { display:flex; gap:10px; }
+        textarea { flex:1; padding:12px; background:#1a1a2e; border:1px solid #00ffff33; border-radius:10px; color:#fff; font-family:inherit; resize:none; min-height:45px; max-height:140px; font-size:14px; outline:none; }
+        textarea:focus { border-color:#00ffff; }
+        .btn-send { padding:12px 20px; background:linear-gradient(135deg,#00ffff,#0088ff); color:#000; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:16px; }
+        .btn-send:disabled { opacity:0.4; cursor:not-allowed; }
+        .toolbar { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+        .tool-btn { padding:8px 12px; background:#1a1a2e; border:1px solid #00ffff33; color:#00ffff; border-radius:8px; cursor:pointer; font-size:12px; }
+        .tool-btn:hover { background:#00ffff22; }
+        img { max-width:280px; border-radius:10px; margin-top:8px; }
+        audio { margin-top:8px; width:100%; }
+        .typing { display:inline-flex; gap:4px; }
+        .typing span { width:6px; height:6px; border-radius:50%; background:#00ffff; animation:bounce 1.2s infinite; }
         .typing span:nth-child(2) { animation-delay:0.2s; }
         .typing span:nth-child(3) { animation-delay:0.4s; }
-        @keyframes bounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-7px);} }
-        
-        img { max-width:300px; border-radius:var(--radius-sm); margin-top:10px; }
-        audio { margin-top:10px; width:100%; }
-        
-        /* Input Area */
-        .input-area { padding:20px 25px; background:var(--bg2); border-top:1px solid var(--border); }
-        .input-container { display:flex; gap:12px; align-items:flex-end; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; transition:0.3s; }
-        .input-container:focus-within { border-color:var(--neon); box-shadow:0 0 25px rgba(0,255,255,0.15); }
-        textarea { flex:1; background:transparent; border:none; color:var(--text); font-family:inherit; font-size:14px; resize:none; min-height:45px; max-height:150px; line-height:1.6; outline:none; }
-        .btn-send { padding:12px 22px; background:linear-gradient(135deg,var(--neon),var(--neon2)); color:#000; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; transition:0.3s; }
-        .btn-send:hover { transform:translateY(-2px); box-shadow:0 6px 25px rgba(0,255,255,0.4); }
-        .btn-send:disabled { opacity:0.4; cursor:not-allowed; }
-        .char-count { font-size:11px; color:#666; text-align:left; margin-top:5px; }
-        .toolbar { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
-        .tool-btn { padding:9px 14px; background:var(--bg3); border:1px solid var(--border); color:var(--neon); border-radius:var(--radius-sm); cursor:pointer; font-size:12px; transition:0.3s; display:flex; align-items:center; gap:5px; }
-        .tool-btn:hover { background:rgba(0,255,255,0.08); border-color:var(--neon); }
-        .tool-btn.recording { background:rgba(255,0,68,0.15); border-color:var(--danger); color:var(--danger); animation:pulse 1s infinite; }
+        @keyframes bounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-6px);} }
     </style>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo">⚡ YZ</div>
         <button class="btn-new" onclick="newChat()">+ گفتگوی جدید</button>
-        <select class="select-model" id="modelSelect">
-            <option value="deepseek">🧠 DeepSeek AI</option>
-            <option value="pollinations">🌟 Pollinations (رایگان)</option>
-        </select>
         <div class="history" id="historyList">
-            <div class="history-title">📋 تاریخچه گفتگوها</div>
+            <div class="history-title">📋 تاریخچه</div>
         </div>
-        <div class="sidebar-footer">
-            <div class="hidden-btn" onclick="showAdmin()">✦ آزادی ✦</div>
-            <div>🔮 نسخه ۵.۰</div>
-        </div>
+        <div class="sidebar-footer">🔮 نسخه ۵.۰</div>
     </div>
     
-    <!-- Main -->
     <div class="main">
         <div class="header">
             <div class="header-title" id="headerTitle">گفتگوی جدید</div>
-            <div class="status"><span class="status-dot"></span> ● آنلاین | YZ Core</div>
+            <div class="status"><span class="dot"></span> آنلاین | DeepSeek AI</div>
         </div>
         
         <div class="chat-area" id="chatArea"></div>
         
         <div class="input-area">
             <div class="input-container">
-                <textarea id="input" placeholder="پیام خود را بنویسید... (Enter برای ارسال)" oninput="updateCount()" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+                <textarea id="input" placeholder="پیام خود را بنویسید..." oninput="updateBtn()" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
                 <button class="btn-send" id="sendBtn" onclick="sendMessage()" disabled>🚀</button>
             </div>
-            <div class="char-count" id="charCount">۰ / ۱۰,۰۰۰</div>
             <div class="toolbar">
                 <button class="tool-btn" onclick="generateImage()">🎨 تصویر</button>
                 <button class="tool-btn" onclick="generateMusic()">🎵 موسیقی</button>
                 <button class="tool-btn" onclick="uploadFile()">📎 فایل</button>
-                <button class="tool-btn" id="voiceBtn" onclick="toggleVoice()">🎤 صدا</button>
                 <button class="tool-btn" onclick="speakLast()">🔊 گفتار</button>
             </div>
-            <input type="file" id="fileInput" style="display:none" multiple>
+            <input type="file" id="fileInput" style="display:none" multiple accept="image/*,audio/*,video/*,.pdf,.txt">
         </div>
     </div>
 
@@ -136,56 +94,35 @@
         let messages = [];
         let currentConvId = null;
         let isGenerating = false;
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let isRecording = false;
 
-        // Load from localStorage
         function loadDB() {
             const saved = localStorage.getItem('yz_db');
             if (saved) {
                 const data = JSON.parse(saved);
                 conversations = data.conversations || [];
                 messages = data.messages || [];
-                if (conversations.length > 0) {
-                    loadConversation(conversations[0].id);
-                }
+                if (conversations.length > 0) loadConversation(conversations[0].id);
             }
         }
-
-        function saveDB() {
-            localStorage.setItem('yz_db', JSON.stringify({ conversations, messages }));
-        }
-
+        function saveDB() { localStorage.setItem('yz_db', JSON.stringify({conversations, messages})); }
         function newChat() {
             currentConvId = null;
             headerTitle.textContent = 'گفتگوی جدید';
             chatArea.innerHTML = '';
             input.value = '';
-            updateCount();
+            updateBtn();
             updateHistory();
         }
-
-        function addMessage(role, content, type = 'text', extra = '') {
+        function addMessage(role, content, type='text', extra='') {
             const div = document.createElement('div');
             div.className = role === 'user' ? 'message user-msg' : 'message ai-msg';
-            
-            if (type === 'image') {
-                div.innerHTML = `<div>🎨 تصویر:</div><img src="${content}" alt="Generated" onerror="this.src='https://via.placeholder.com/300x300/1a1a2e/00ffff?text=YZ+AI'"><div class="msg-tag">🎨 Pollinations</div>`;
-            } else if (type === 'audio') {
-                div.innerHTML = `<div>🎵 موسیقی:</div><audio controls src="${content}"></audio><div class="msg-tag">🎵 AI Music</div>`;
-            } else if (type === 'file') {
-                div.innerHTML = `<div>📎 ${content}</div><div class="msg-tag">📎 فایل</div>`;
-            } else if (type === 'voice') {
-                div.innerHTML = `<div>🎤 پیام صوتی:</div><audio controls src="${content}"></audio><div class="msg-tag">🎤 Voice</div>`;
-            } else {
-                div.innerHTML = `<div>${content.replace(/\n/g,'<br>')}</div><div class="msg-tag">🧠 DeepSeek</div>`;
-            }
-            
+            if (type === 'image') div.innerHTML = `<div>🎨 تصویر:</div><img src="${content}" onerror="this.src='https://via.placeholder.com/280x280/1a1a2e/00ffff?text=AI'"><div class="tag">🎨 Pollinations</div>`;
+            else if (type === 'file') div.innerHTML = `<div>📎 ${content}</div><div class="tag">📎 فایل</div>`;
+            else if (type === 'audio') div.innerHTML = `<div>🎵 موسیقی:</div><audio controls src="${content}"></audio><div class="tag">🎵 Music</div>`;
+            else div.innerHTML = `<div>${content.replace(/\n/g,'<br>')}</div><div class="tag">🧠 DeepSeek</div>`;
             chatArea.appendChild(div);
             chatArea.scrollTop = chatArea.scrollHeight;
         }
-
         function addTyping() {
             const div = document.createElement('div');
             div.className = 'message ai-msg';
@@ -195,32 +132,25 @@
             chatArea.scrollTop = chatArea.scrollHeight;
             return div.id;
         }
-
-        function removeTyping(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-        }
+        function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
 
         async function sendMessage() {
             const prompt = input.value.trim();
             if (!prompt || isGenerating) return;
-            
             isGenerating = true;
             sendBtn.disabled = true;
             
-            // Create conversation if needed
             if (!currentConvId) {
-                const conv = { id: Date.now(), title: prompt.substring(0, 40), createdAt: new Date().toISOString(), count: 0 };
+                const conv = { id: Date.now(), title: prompt.substring(0,35), createdAt: new Date().toISOString(), count: 0 };
                 conversations.unshift(conv);
                 currentConvId = conv.id;
                 headerTitle.textContent = conv.title;
             }
             
             addMessage('user', prompt);
-            messages.push({ convId: currentConvId, role: 'user', content: prompt, timestamp: new Date().toISOString() });
-            
+            messages.push({ convId: currentConvId, role: 'user', content: prompt });
             input.value = '';
-            updateCount();
+            updateBtn();
             
             const typingId = addTyping();
             
@@ -231,30 +161,23 @@
                     body: JSON.stringify({ prompt: prompt }),
                 });
                 const data = await response.json();
-                
                 removeTyping(typingId);
                 
-                let aiText = '';
-                if (data.choices && data.choices[0]) {
-                    aiText = data.choices[0].message.content;
-                } else if (data.error) {
-                    aiText = 'خطا: ' + data.error.message;
-                } else {
-                    aiText = 'پاسخی دریافت نشد.';
-                }
+                let text = '';
+                if (data.choices && data.choices[0]) text = data.choices[0].message.content;
+                else if (data.error) text = 'خطا: ' + data.error.message;
+                else text = 'پاسخی دریافت نشد.';
                 
-                addMessage('ai', aiText);
-                messages.push({ convId: currentConvId, role: 'ai', content: aiText, timestamp: new Date().toISOString() });
+                addMessage('ai', text);
+                messages.push({ convId: currentConvId, role: 'ai', content: text });
                 
                 const conv = conversations.find(c => c.id === currentConvId);
                 if (conv) conv.count = messages.filter(m => m.convId === currentConvId).length;
-                
                 saveDB();
                 updateHistory();
-                
             } catch(err) {
                 removeTyping(typingId);
-                addMessage('ai', 'خطا در ارتباط: ' + err.message);
+                addMessage('ai', 'خطا: ' + err.message);
             } finally {
                 isGenerating = false;
                 sendBtn.disabled = false;
@@ -262,138 +185,73 @@
         }
 
         function generateImage() {
-            const prompt = input.value.trim() || 'cyberpunk city with neon lights';
+            const prompt = input.value.trim() || 'cyberpunk city';
             addMessage('user', `🎨 تصویر: ${prompt}`);
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${Date.now()}`;
-            addMessage('ai', imageUrl, 'image');
+            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${Date.now()}`;
+            addMessage('ai', url, 'image');
             input.value = '';
-            updateCount();
+            updateBtn();
         }
 
         function generateMusic() {
-            const prompt = input.value.trim() || 'relaxing ambient music';
+            const prompt = input.value.trim() || 'relaxing music';
             addMessage('user', `🎵 موسیقی: ${prompt}`);
-            addMessage('ai', `🎵 در حال ساخت موسیقی "${prompt}"...\n\nتوضیح موسیقی: یک قطعه ${prompt} با ملودی آرام و دلنشین.`);
+            addMessage('ai', `🎵 در حال ساخت "${prompt}"...\n\nنسخه نمایشی موسیقی آماده است.`);
             input.value = '';
-            updateCount();
+            updateBtn();
         }
 
-        function uploadFile() {
-            document.getElementById('fileInput').click();
-        }
-
+        function uploadFile() { document.getElementById('fileInput').click(); }
         document.getElementById('fileInput').addEventListener('change', function(e) {
-            const files = e.target.files;
-            for (const file of files) {
-                const size = (file.size / 1024).toFixed(1) + ' KB';
-                const type = file.type;
-                const name = file.name;
-                
-                if (type.startsWith('image/')) {
+            for (const file of e.target.files) {
+                const size = (file.size/1024).toFixed(1) + ' KB';
+                if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = (ev) => addMessage('user', ev.target.result, 'image');
+                    reader.onload = ev => addMessage('user', ev.target.result, 'image');
                     reader.readAsDataURL(file);
-                } else if (type.startsWith('audio/')) {
-                    const url = URL.createObjectURL(file);
-                    addMessage('user', url, 'audio');
                 } else {
-                    addMessage('user', `${name} (${size})`, 'file');
+                    addMessage('user', file.name + ' (' + size + ')', 'file');
                 }
             }
             this.value = '';
         });
 
-        async function toggleVoice() {
-            const btn = document.getElementById('voiceBtn');
-            if (!isRecording) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    mediaRecorder.onstop = () => {
-                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const url = URL.createObjectURL(blob);
-                        addMessage('user', url, 'voice');
-                        stream.getTracks().forEach(t => t.stop());
-                    };
-                    mediaRecorder.start();
-                    isRecording = true;
-                    btn.classList.add('recording');
-                    btn.textContent = '⏹️ توقف';
-                } catch(err) {
-                    alert('دسترسی به میکروفون ممکن نیست');
-                }
-            } else {
-                mediaRecorder.stop();
-                isRecording = false;
-                btn.classList.remove('recording');
-                btn.textContent = '🎤 صدا';
-            }
-        }
-
         function speakLast() {
-            const lastMsg = messages[messages.length - 1];
-            if (lastMsg && lastMsg.role === 'ai') {
-                const utterance = new SpeechSynthesisUtterance(lastMsg.content);
-                utterance.lang = 'fa-IR';
-                speechSynthesis.speak(utterance);
+            const last = messages[messages.length-1];
+            if (last && last.role === 'ai') {
+                const u = new SpeechSynthesisUtterance(last.content);
+                u.lang = 'fa-IR';
+                speechSynthesis.speak(u);
             }
         }
 
-        function updateCount() {
-            const len = input.value.length;
-            document.getElementById('charCount').textContent = `${len.toLocaleString('fa-IR')} / ۱۰,۰۰۰`;
-            sendBtn.disabled = len === 0;
-            input.style.height = 'auto';
-            input.style.height = Math.min(input.scrollHeight, 150) + 'px';
+        function updateBtn() {
+            sendBtn.disabled = input.value.trim().length === 0;
         }
-
         function updateHistory() {
             const list = document.getElementById('historyList');
-            list.innerHTML = '<div class="history-title">📋 تاریخچه گفتگوها</div>';
+            list.innerHTML = '<div class="history-title">📋 تاریخچه</div>';
             conversations.forEach(conv => {
                 const item = document.createElement('div');
                 item.className = 'conv-item' + (conv.id === currentConvId ? ' active' : '');
-                item.innerHTML = `
-                    <div class="conv-title">${conv.title}</div>
-                    <div class="conv-meta"><span>${conv.count || 0} پیام</span></div>
-                    <button class="conv-delete" onclick="event.stopPropagation(); deleteConv(${conv.id})">✕</button>
-                `;
+                item.innerHTML = `<div>${conv.title}</div><small style="color:#888">${conv.count || 0} پیام</small>`;
                 item.onclick = () => loadConversation(conv.id);
                 list.appendChild(item);
             });
         }
-
         function loadConversation(convId) {
             const conv = conversations.find(c => c.id === convId);
             if (!conv) return;
             currentConvId = convId;
             headerTitle.textContent = conv.title;
             chatArea.innerHTML = '';
-            messages.filter(m => m.convId === convId).forEach(m => {
-                addMessage(m.role, m.content);
-            });
+            messages.filter(m => m.convId === convId).forEach(m => addMessage(m.role, m.content));
             updateHistory();
         }
 
-        function deleteConv(convId) {
-            if (!confirm('حذف این گفتگو؟')) return;
-            conversations = conversations.filter(c => c.id !== convId);
-            messages = messages.filter(m => m.convId !== convId);
-            if (currentConvId === convId) newChat();
-            saveDB();
-            updateHistory();
-        }
-
-        function showAdmin() {
-            alert('🔐 پنل مدیریت\n\nتعداد گفتگوها: ' + conversations.length + '\nتعداد پیام‌ها: ' + messages.length);
-        }
-
-        // Initialize
         loadDB();
         updateHistory();
-        updateCount();
+        updateBtn();
     </script>
 </body>
 </html>
