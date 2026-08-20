@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ YZ - وای زد | هوش مصنوعی کامل</title>
+    <title>⚡ YZ - وای زد | همه‌چیزتمام</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Vazirmatn',Tahoma; background:#0a0a0f; color:#e0e0e0; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+        body { font-family:'Vazirmatn',Tahoma; background:#0a0a0f; color:#e0e0e0; height:100vh; display:flex; flex-direction:column; overflow:hidden; direction:rtl; }
         .header { padding:15px 20px; background:#111122; border-bottom:1px solid #00ffff33; display:flex; justify-content:space-between; align-items:center; }
         .logo { font-size:24px; font-weight:900; color:#00ffff; text-shadow:0 0 20px #00ffff; }
         .status { color:#00ffff; font-size:14px; }
@@ -23,48 +23,48 @@
         .toolbar { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
         .tool-btn { padding:8px 14px; background:#1a1a2e; border:1px solid #00ffff33; color:#00ffff; border-radius:8px; cursor:pointer; font-size:13px; }
         .tool-btn:hover { background:#00ffff22; }
+        select { padding:10px; background:#1a1a2e; border:1px solid #00ffff33; color:#00ffff; border-radius:8px; font-family:inherit; }
         img { max-width:300px; border-radius:10px; margin-top:10px; }
-        audio { margin-top:10px; width:100%; }
     </style>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 </head>
 <body>
     <div class="header">
-        <div class="logo">⚡ YZ | هوش مصنوعی کامل</div>
-        <div class="status">● آنلاین | رایگان</div>
+        <div class="logo">⚡ YZ | همه‌چیزتمام</div>
+        <div class="status">● آنلاین</div>
     </div>
     
     <div class="chat-area" id="chatArea"></div>
     
     <div class="input-area">
-        <div class="input-container">
-            <textarea id="input" placeholder="پیام خود را بنویسید... (Shift+Enter برای خط جدید)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+        <select id="modelSelect">
+            <option value="auto">🤖 خودکار</option>
+            <option value="gemini">🌟 Gemini Pro</option>
+            <option value="openai">🧠 GPT-4o</option>
+            <option value="claude">💎 Claude</option>
+        </select>
+        <div class="input-container" style="margin-top:10px;">
+            <textarea id="input" placeholder="پیام خود را بنویسید..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
             <button onclick="sendMessage()">🚀 ارسال</button>
         </div>
         <div class="toolbar">
-            <button class="tool-btn" onclick="generateImage()">🎨 تولید تصویر</button>
-            <button class="tool-btn" onclick="generateMusic()">🎵 تولید موسیقی</button>
-            <button class="tool-btn" onclick="startVoice()">🎤 گفتار صوتی</button>
-            <button class="tool-btn" onclick="speakLast()">🔊 خواندن پاسخ</button>
+            <button class="tool-btn" onclick="generateImage()">🎨 تصویر</button>
+            <button class="tool-btn" onclick="generateMusic()">🎵 موسیقی</button>
+            <button class="tool-btn" onclick="searchNews()">📰 خبر</button>
+            <button class="tool-btn" onclick="startVoice()">🎤 صدا</button>
+            <button class="tool-btn" onclick="speakLast()">🔊 گفتار</button>
         </div>
     </div>
 
     <script>
+        const WORKER_URL = 'https://twilight-bird-de54.amirmohad208.workers.dev/';
         const chatArea = document.getElementById('chatArea');
         const input = document.getElementById('input');
 
-        function addMessage(role, content, type = 'text') {
+        function addMessage(role, content, model = 'auto') {
             const div = document.createElement('div');
             div.className = role === 'user' ? 'message user-msg' : 'message ai-msg';
-            
-            if (type === 'image') {
-                div.innerHTML = `<div>🎨 تصویر تولید شد:</div><img src="${content}" alt="Generated Image"><div class="tag">🎨 Pollinations AI</div>`;
-            } else if (type === 'audio') {
-                div.innerHTML = `<div>🎵 موسیقی تولید شد:</div><audio controls src="${content}"></audio><div class="tag">🎵 Pollinations Music</div>`;
-            } else {
-                div.innerHTML = `<div>${content}</div><div class="tag">🌟 YZ AI</div>`;
-            }
-            
+            div.innerHTML = `<div>${content}</div><div class="tag">${model}</div>`;
             chatArea.appendChild(div);
             chatArea.scrollTop = chatArea.scrollHeight;
         }
@@ -73,41 +73,102 @@
             const prompt = input.value.trim();
             if (!prompt) return;
             
+            const model = document.getElementById('modelSelect').value;
             addMessage('user', prompt);
             input.value = '';
             
+            addMessage('ai', '⏳ در حال پردازش...', 'سیستم');
+            
             try {
-                // استفاده از Pollinations AI - رایگان و بدون کلید
-                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-                const text = await response.text();
-                addMessage('ai', text);
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target: model, prompt: prompt }),
+                });
+                const data = await response.json();
+                
+                // حذف پیام "در حال پردازش"
+                const msgs = chatArea.querySelectorAll('.ai-msg');
+                if (msgs.length > 0) msgs[msgs.length - 1].remove();
+                
+                if (data.candidates && data.candidates[0]) {
+                    const text = data.candidates[0].content.parts[0].text;
+                    addMessage('ai', text, '🌟 Gemini Pro');
+                } else if (data.choices && data.choices[0]) {
+                    const text = data.choices[0].message.content;
+                    addMessage('ai', text, '🧠 GPT-4o');
+                } else if (data.content && data.content[0]) {
+                    const text = data.content[0].text;
+                    addMessage('ai', text, '💎 Claude');
+                } else if (data.error) {
+                    addMessage('ai', 'خطا: ' + (data.error.message || JSON.stringify(data.error)), 'سیستم');
+                } else {
+                    addMessage('ai', 'پاسخی دریافت نشد.', 'سیستم');
+                }
             } catch(err) {
-                addMessage('ai', 'متأسفم، خطایی رخ داد. دوباره تلاش کنید.');
+                const msgs = chatArea.querySelectorAll('.ai-msg');
+                if (msgs.length > 0) msgs[msgs.length - 1].remove();
+                addMessage('ai', 'خطا در ارتباط: ' + err.message, 'سیستم');
             }
         }
 
         async function generateImage() {
             const prompt = input.value.trim() || 'cyberpunk city';
             addMessage('user', `🎨 تصویر: ${prompt}`);
-            
             const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512`;
-            addMessage('ai', imageUrl, 'image');
+            const div = document.createElement('div');
+            div.className = 'message ai-msg';
+            div.innerHTML = `<div>🎨 تصویر تولید شد:</div><img src="${imageUrl}" alt="Generated"><div class="tag">🎨 Pollinations</div>`;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
             input.value = '';
         }
 
         async function generateMusic() {
-            const prompt = input.value.trim() || 'relaxing ambient music';
+            const prompt = input.value.trim() || 'relaxing music';
             addMessage('user', `🎵 موسیقی: ${prompt}`);
-            
-            // Pollinations می‌تواند متن موسیقی تولید کند
-            const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent('Describe a music piece: ' + prompt)}`);
-            const text = await response.text();
-            addMessage('ai', '🎵 توضیح موسیقی:\n' + text);
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target: 'gemini', prompt: 'Describe a music piece: ' + prompt }),
+                });
+                const data = await response.json();
+                if (data.candidates && data.candidates[0]) {
+                    addMessage('ai', '🎵 ' + data.candidates[0].content.parts[0].text, '🎵 Music AI');
+                }
+            } catch(err) {
+                addMessage('ai', '🎵 موسیقی در حال ساخت است...', '🎵 Music AI');
+            }
+            input.value = '';
+        }
+
+        async function searchNews() {
+            const query = input.value.trim() || 'تکنولوژی';
+            addMessage('user', `📰 خبر: ${query}`);
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target: 'news', prompt: query }),
+                });
+                const data = await response.json();
+                if (data.articles) {
+                    let newsText = '📰 اخبار:\n\n';
+                    data.articles.slice(0, 5).forEach((article, i) => {
+                        newsText += `${i+1}. ${article.title}\n${article.description || ''}\n\n`;
+                    });
+                    addMessage('ai', newsText, '📰 NewsAPI');
+                } else {
+                    addMessage('ai', 'خبری یافت نشد.', '📰 NewsAPI');
+                }
+            } catch(err) {
+                addMessage('ai', 'خطا در دریافت خبر.', '📰 NewsAPI');
+            }
             input.value = '';
         }
 
         function startVoice() {
-            // استفاده از Web Speech API برای تشخیص گفتار
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'fa-IR';
             recognition.onresult = (event) => {
@@ -116,7 +177,7 @@
                 sendMessage();
             };
             recognition.start();
-            addMessage('ai', '🎤 در حال گوش دادن... صحبت کنید');
+            addMessage('ai', '🎤 در حال گوش دادن...', 'سیستم');
         }
 
         function speakLast() {
@@ -129,8 +190,7 @@
             }
         }
 
-        // پیام خوش آمد
-        addMessage('ai', 'سلام! من YZ هستم. چطور می‌توانم کمک کنم؟\n\nمی‌توانید:\n💬 چت کنید\n🎨 تصویر تولید کنید\n🎵 موسیقی بسازید\n🎤 با صدا صحبت کنید');
+        addMessage('ai', 'سلام! من YZ هستم.\n\nمی‌توانید:\n💬 چت با مدل‌های مختلف\n🎨 تولید تصویر\n🎵 ساخت موسیقی\n📰 جستجوی خبر\n🎤 گفتار صوتی', '⚡ YZ');
     </script>
 </body>
 </html>
