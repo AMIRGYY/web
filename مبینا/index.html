@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MOBINA 19 — A WORLD MADE JUST FOR YOU</title>
+    
+    <!-- فونت فارسی -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- کتابخانه‌های انیمیشن -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-dark: #0a0510;
+            --neon-purple: #b026ff;
+            --neon-pink: #ff2a85;
+            --neon-gold: #ffd700;
+            --neon-blue: #00f3ff;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            color: #fff;
+        }
+
+        /* --- دکمه کنترل موسیقی --- */
+        #music-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 2px solid var(--neon-gold);
+            color: var(--neon-gold);
+            font-size: 1.5rem;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-gold);
+            backdrop-filter: blur(5px);
+        }
+        #music-toggle:hover { transform: scale(1.1); }
+
+        /* --- بخش ۱: ورود سینمایی --- */
+        #intro-section {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        #matrix-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.9;
+        }
+
+        .eye-reveal-box {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 450px;
+            height: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            box-shadow: 0 0 50px var(--neon-purple), inset 0 0 50px rgba(0,0,0,0.8);
+            border: 2px solid var(--neon-purple);
+            clip-path: inset(100% 0 0 0); 
+        }
+
+        #mobina-eyes {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.2) contrast(3) grayscale(1) blur(5px);
+            transition: all 4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .glitch-overlay {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(176, 38, 255, 0.4) 2px, rgba(176, 38, 255, 0.4) 4px);
+            pointer-events: none;
+            animation: glitch 0.1s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+
+        .intro-text {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            opacity: 0;
+            margin-top: 25px;
+            padding: 0 20px;
+        }
+
+        .intro-text h2 {
+            font-size: 1.8rem;
+            color: var(--neon-gold);
+            text-shadow: 0 0 15px var(--neon-gold);
+            margin-bottom: 10px;
+        }
+
+        .intro-text p {
+            font-size: 1rem;
+            color: #ddd;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn-luxury {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-pink));
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--neon-pink);
+            transition: all 0.3s;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            margin: 5px;
+        }
+
+        .btn-luxury:active { transform: scale(0.95); }
+
+        /* --- بخش ۲: دنیای اصلی --- */
+        #main-app {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #0a0510 100%);
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+
+        .section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+            z-index: 10;
+        }
+        .section:nth-child(even) {
+            background: radial-gradient(circle at top left, rgba(176, 38, 255, 0.1) 0%, transparent 50%);
+        }
+        .section:nth-child(odd) {
+            background: radial-gradient(circle at bottom right, rgba(255, 42, 133, 0.1) 0%, transparent 50%);
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        /* نامه */
+        .envelope-container { cursor: pointer; margin: 20px 0; perspective: 1000px; }
+        .envelope {
+            width: 280px; height: 180px;
+            background: linear-gradient(135deg, #2a1b3d, #1a0b2e);
+            border: 2px solid var(--neon-gold);
+            border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        .envelope-text { color: var(--neon-gold); font-size: 1.2rem; font-weight: bold; text-shadow: 0 0 10px var(--neon-gold); }
+        .letter-content {
+            display: none;
+            background: rgba(20, 5, 30, 0.9);
+            border: 1px solid var(--neon-pink);
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 650px;
+            line-height: 2.2;
+            text-align: justify;
+            font-size: 1rem;
+            box-shadow: 0 0 40px rgba(255, 42, 133, 0.2);
+        }
+
+        /* تایم لاین */
+        .timeline { position: relative; max-width: 600px; width: 100%; margin: 40px 0; }
+        .timeline::after {
+            content: ''; position: absolute; width: 4px;
+            background: var(--neon-purple); top: 0; bottom: 0; left: 50%; margin-left: -2px;
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+        .timeline-item { padding: 20px 40px; position: relative; background-color: inherit; width: 50%; }
+        .timeline-item.left { left: 0; text-align: right; }
+        .timeline-item.right { left: 50%; text-align: left; }
+        .timeline-item::after {
+            content: ''; position: absolute; width: 20px; height: 20px;
+            right: -10px; background-color: var(--neon-gold);
+            border: 4px solid var(--bg-dark); top: 25px;
+            border-radius: 50%; z-index: 1; box-shadow: 0 0 10px var(--neon-gold);
+        }
+        .timeline-item.right::after { left: -10px; }
+        .timeline-content {
+            padding: 20px; background: var(--glass-bg);
+            border: 1px solid var(--neon-blue); border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        /* گالری */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; width: 100%; max-width: 800px; }
+        .gallery-item {
+            height: 150px; border-radius: 15px; overflow: hidden;
+            border: 2px solid var(--neon-purple); cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .gallery-item:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon-purple); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ۱۹ دلیل و آرزو */
+        .reasons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; width: 100%; max-width: 800px; }
+        .reason-card {
+            background: var(--glass-bg); border: 1px solid var(--neon-pink);
+            border-radius: 15px; padding: 20px; cursor: pointer;
+            transition: all 0.3s; position: relative; height: 120px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .reason-card .front { font-size: 1.5rem; font-weight: bold; color: var(--neon-gold); }
+        .reason-card .back { display: none; font-size: 0.9rem; color: #fff; margin-top: 10px; }
+
+        /* بخش رمزدار */
+        .password-input {
+            padding: 12px 20px; border-radius: 10px; border: 1px solid var(--neon-blue);
+            background: rgba(0,0,0,0.5); color: #fff; font-size: 1.1rem; text-align: center;
+            margin: 10px; width: 200px; outline: none;
+        }
+
+        /* بازی‌ها */
+        .game-area {
+            width: 100%; max-width: 400px; height: 300px;
+            position: relative; background: rgba(0,0,0,0.5);
+            border: 1px solid var(--neon-blue); border-radius: 15px;
+            overflow: hidden; margin-top: 20px;
+        }
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 10px; width: 100%; height: 100%; }
+        .memory-card {
+            background: var(--neon-purple); border-radius: 10px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; transition: transform 0.3s, background 0.3s;
+        }
+        .memory-card.flipped { background: var(--glass-bg); transform: rotateY(180deg); }
+
+        /* کیک */
+        .cake-wrapper { position: relative; margin: 40px 0; }
+        .cake {
+            width: 180px; height: 100px;
+            background: linear-gradient(to bottom, #ff9a9e, #fecfef);
+            border-radius: 10px 10px 0 0; position: relative; margin: 0 auto;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 5px 15px rgba(255,255,255,0.5);
+        }
+        .candle {
+            width: 12px; height: 45px;
+            background: repeating-linear-gradient(45deg, #fff, #fff 5px, #ff2a85 5px, #ff2a85 10px);
+            position: absolute; top: -45px; left: 50%; transform: translateX(-50%);
+            border-radius: 5px 5px 0 0;
+        }
+        .flame {
+            width: 18px; height: 30px;
+            background: radial-gradient(circle, #fff 0%, #ffd700 40%, #ff8c00 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute; top: -30px; left: -3px;
+            animation: flicker 0.1s infinite alternate;
+            box-shadow: 0 0 20px #ff8c00, 0 0 40px #ffd700;
+        }
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-3deg); opacity: 0.9; }
+            100% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+        }
+
+        .fade-up { opacity: 0; transform: translateY(40px); transition: all 1s ease; }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 600px) {
+            .timeline::after { left: 31px; }
+            .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; }
+            .timeline-item.right { left: 0%; }
+            .timeline-item.left { text-align: left; }
+            .timeline-item::after { left: 21px; right: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- دکمه کنترل موسیقی -->
+    <button id="music-toggle" onclick="toggleMusic()">🎵</button>
+
+    <!-- موسیقی عاشقانه و طولانی -->
+    <audio id="bg-music" loop>
+        <source src="Mammrez-Yare Chish Ghashang-musicdel.ir (1).mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- بخش ورود -->
+    <div id="intro-section">
+        <canvas id="matrix-canvas"></canvas>
+        
+        <div class="eye-reveal-box" id="eye-box">
+            <!-- عکس چشم مبینا را اینجا قرار دهید -->
+            <img id="mobina-eyes" src="mobina..webp" alt="Eyes" onerror="this.src='https://via.placeholder.com/450x300/0a0510/b026ff?text=EYES+OF+MOBINA'">
+            <div class="glitch-overlay" id="glitch"></div>
+        </div>
+
+        <div class="intro-text" id="intro-text">
+            <h2>بالاخره پیدات کردم...</h2>
+            <p>بین این همه کد، فقط یه چیز بود که هیچ الگوریتمی نمی‌تونست قشنگی‌ش رو اندازه بگیره...</p>
+            <p style="color: var(--neon-gold); font-weight: bold; margin-bottom: 25px; font-size: 1.1rem;">THE MOST BEAUTIFUL DISCOVERY IS YOU, MOBINA.</p>
+            <button class="btn-luxury" onclick="enterWorld()">ورود به دنیای اختصاصی من و تو</button>
+        </div>
+    </div>
+
+    <!-- دنیای اصلی -->
+    <div id="main-app">
+        
+        <!-- ۱. خوش آمدگویی -->
+        <section class="section">
+            <div class="glass-card fade-up">
+                <h2 style="color: var(--neon-gold); font-size: 1.5rem; margin-bottom: 15px;">امروز جهان بهونه قشنگی برای جشن گرفتن داره...</h2>
+                <h1 style="color: var(--neon-pink); font-size: 1.8rem; margin-bottom: 20px; text-shadow: 0 0 15px var(--neon-pink);">تولدت مبارک مبینای من ❤️</h1>
+                <div style="font-size: 6rem; font-weight: bold; color: transparent; -webkit-text-stroke: 2px var(--neon-purple); text-shadow: 0 0 40px var(--neon-purple); margin: 15px 0;">19</div>
+                <p style="line-height: 1.8;">۱۹ سال از روزی گذشت که دنیا یکی از قشنگ‌ترین آدم‌هاشو به خودش هدیه گرفت.</p>
+            </div>
+        </section>
+
+        <!-- ۲. تایم‌لاین خاطرات -->
+        <section class="section">
+            <h2 class="fade-up" style="color: var(--neon-blue); margin-bottom: 20px;">تایم‌لاین خاطرات ما</h2>
+            <div class="timeline fade-up">
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h3 style="color: var(--neon-gold);">گذشته</h3>
+                        <p>از روزی که شناختمت، تمام روزهای تقویمم رنگ دیگه‌ای گرفتن.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <h3 style="color: var(--neon-pink);">حالا</h3>
+                        <p>امروز ۱۹ ساله شدی. قشنگ‌تر از همیشه و عزیزتر از همیشه برای من.</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h3 style="color: var(--neon-blue);">آینده</h3>
+                        <p>امیدوارم سال بعد، همین موقع، کنار هم باشیم و به این روز بخندیم؛ با این تفاوت که دیگه فاصله‌ای بینمون نباشه.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ۳. نامه عاشقانه -->
+        <section class="section">
+            <h2 class="fade-up" style="color: var(--neon-gold); margin-bottom: 20px;">نامه‌ای از طرف امیر</h2>
+            <div class="envelope-container fade-up" onclick="openLetter()">
+                <div class="envelope">
+                    <span class="envelope-text">A LETTER FOR MOBINA</span>
+                </div>
+            </div>
+            <div class="letter-content" id="letter-text">
+                <p>مبینای من...</p>
+                <p>نمی‌دونم از کجا شروع کنم، چون وقتی حرف از تو می‌شه، انگار هیچ کلمه‌ای به اندازه کافی بزرگ نیست.</p>
+                <p>تولدت مبارک دختر قشنگم. امروز نوزده سالته و آرزو می‌کنم سال جدید زندگیت پر از خنده‌های واقعی و لحظه‌های ناب باشه.</p>
+                <p>مبینا، من واقعاً دوستت دارم. بیشتر از چیزی که بتونم بگم. <span style="color: var(--neon-pink);">تو فقط مال خودمی</span> و <span style="color: var(--neon-pink);">غیرتیم روت</span>.</p>
+                <p><span style="color: var(--neon-gold);">عاشق صداتم، عاشق خودتم، عاشق همه چیزتم. زندگی منی.</span></p>
+                <p>حتی وقتی قهر می‌کنی و اخم می‌کنی، اون اخم‌هاتم برام به خنده‌ست. من حتی اگه <span style="color: var(--neon-blue);">۱۰,۰۰۰,۰۰۰,۰۰۰ (ده میلیارد) نفر دیگه</span> هم بیان، تو رو با هیچ‌کس تو دنیا عوض نمی‌کنم و نمی‌فروشمت. تو فقط برای منی و هیچ‌کس دیگه‌ای حق نداره حتی بهت فکر کنه.</p>
+                <p>کاش امروز کنارت بودم... کاش می‌تونستم درست همین لحظه روبه‌روت باشم.</p>
+                <p style="margin-top: 20px; font-weight: bold; color: var(--neon-pink); text-align: center;">از طرف همونی که برات می‌میره<br>(امیر) ❤️</p>
+            </div>
+        </section>
+
+        <!-- ۴. ۱۹ دلیل خاص بودن -->
+        <section class="section">
+            <h2 class="fade-up" style="color: var(--neon-gold); margin-bottom: 10px;">۱۹ دلیل که باعث می‌شه مبینا خاص باشه</h2>
+            <p class="fade-up" style="margin-bottom: 20px; color: #aaa;">روی هر کارت کلیک کن</p>
+            <div class="reasons-grid fade-up" id="reasons-grid"></div>
+        </section>
+
+        <!-- ۵. ۱۹ آرزوی قشنگ -->
+        <section class="section">
+            <h2 class="fade-up" style="color: var(--neon-pink); margin-bottom: 20px;">۱۹ آرزوی من برای تو</h2>
+            <div class="glass-card fade-up">
+                <ul id="wishes-list" style="list-style-type: none; text-align: right; line-height: 2.5; font-size: 1.1rem; color: #ddd;">
+                    <!-- با جاوا اسکریپت پر می‌شود -->
+                </ul>
+            </div>
+        </section>
+
+        <!-- ۶. بخش رمزدار (رازهای مگوی امیر) -->
+        <section class="section">
+            <div class="glass-card fade-up" style="border-color: var(--neon-gold);">
+                <h2 style="color: var(--neon-gold); margin-bottom: 15px;">🔒 یه پیام رمزدار برات دارم</h2>
+                <p style="margin-bottom: 15px; font-size: 0.95rem;">رمز رو بزن تا حرف دلم رو بخونی. (راهنما: سنت رو وارد کن)</p>
+                <input type="text" id="secret-input" class="password-input" placeholder="رمز را وارد کنید">
+                <br>
+                <button class="btn-luxury" onclick="checkSecret()">باز کردن قفل</button>
+                <div id="secret-message" style="display: none; margin-top: 20px; font-size: 1.1rem; color: var(--neon-blue); line-height: 2;">
+                    <!-- پیام مخفی اینجا میاد -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ۷. گالری اختصاصی -->
+        <section class="section">
+            <h2 class="fade-up" style="color: var(--neon-blue); margin-bottom: 20px;">قاب‌های قشنگی که باید خودمون در اینده پرش کنیم</h2>
+            <div class="gallery-grid fade-up">
+                <!-- عکس‌های واقعی مبینا را جایگزین لینک‌های زیر کن -->
+                <div class="gallery-item" onclick="openImage(this)"><img src="https://via.placeholder.com/300x300/1a0b2e/ffd700?text=Photo+1" alt=""></div>
+                <div class="gallery-item" onclick="openImage(this)"><img src="https://via.placeholder.com/300x300/1a0b2e/ff2a85?text=Photo+2" alt=""></div>
+                <div class="gallery-item" onclick="openImage(this)"><img src="https://via.placeholder.com/300x300/1a0b2e/00f3ff?text=Photo+3" alt=""></div>
+                <div class="gallery-item" onclick="openImage(this)"><img src="https://via.placeholder.com/300x300/1a0b2e/b026ff?text=Photo+4" alt=""></div>
+                <div class="gallery-item" onclick="openImage(this)"><img src="https://via.placeholder.com/300x300/1a0b2e/ffd700?text=Photo+5" alt=""></div>
+                <div class="gallery-item" onclick="openImage(this)"><img src="https://via.placeholder.com/300x300/1a0b2e/ff2a85?text=Photo+6" alt=""></div>
+            </div>
+        </section>
+
+        <!-- ۸. بخش دخترانه (آینه جادویی) -->
+        <section class="section">
+            <div class="glass-card fade-up" style="border-color: var(--neon-pink);">
+                <h2 style="color: var(--neon-pink); margin-bottom: 15px;">✨ آینه جادویی مبینا ✨</h2>
+                <p style="margin-bottom: 20px; line-height: 1.8;">یه دختر خاص مثل تو همیشه باید بدونه چقدر قشنگه. روی دکمه بزن تا حقیقت رو ببینی...</p>
+                <button class="btn-luxury" onclick="magicMirror()" style="background: linear-gradient(45deg, #ff2a85, #ffd700);">آینه جادویی رو لمس کن</button>
+                <div id="mirror-result" style="margin-top: 20px; font-size: 1.1rem; color: var(--neon-gold); min-height: 60px;"></div>
+            </div>
+        </section>
+
+        <!-- ۹. بازی‌ها -->
+        <section class="section">
+            <h2 class="fade-up" style="color: var(--neon-gold); margin-bottom: 20px;">بازی‌های اختصاصی</h2>
+            
+            <div class="glass-card fade-up" style="margin-bottom: 30px;">
+                <h3 style="color: var(--neon-blue); margin-bottom: 10px;">بازی حافظه</h3>
+                <p style="font-size: 0.9rem; color: #aaa; margin-bottom: 15px;">کارت‌های مشابه رو پیدا کن</p>
+                <div class="game-area" style="height: 250px;">
+                    <div class="memory-grid" id="memory-grid"></div>
+                </div>
+            </div>
+
+            <div class="glass-card fade-up">
+                <h3 style="color: var(--neon-pink); margin-bottom: 10px;">قلب‌های گمشده</h3>
+                <p style="font-size: 0.9rem; color: #aaa; margin-bottom: 15px;">هرچی قلب می‌بینی سریع روش کلیک کن!</p>
+                <button class="btn-luxury" onclick="startHeartGame()">شروع بازی</button>
+                <div class="game-area" id="heart-game-area" style="display:none; height: 250px;">
+                    <div id="heart-score" style="position:absolute; top:10px; right:10px; z-index:20; font-weight:bold;">امتیاز: 0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ۱۰. کیک تولد -->
+        <section class="section" id="cake-section">
+            <h2 class="fade-up" style="color: var(--neon-gold); margin-bottom: 40px;">حالا نوبت آرزو کردنه...</h2>
+            <div class="cake-wrapper fade-up">
+                <div class="cake">
+                    <div class="candle"><div class="flame" id="flame"></div></div>
+                </div>
+            </div>
+            <p class="fade-up" style="margin-bottom: 20px; color: #ddd;">میکروفون را فعال کن و فوت کن، یا دکمه را بزن.</p>
+            <button class="btn-luxury fade-up" onclick="enableMic()" style="margin-bottom: 10px; font-size: 0.9rem; padding: 10px 20px;">🎤 فعال‌سازی میکروفون</button>
+            <br>
+            <button class="btn-luxury fade-up" onclick="blowCandles()" style="background: linear-gradient(45deg, #b026ff, #00f3ff); font-size: 0.9rem; padding: 10px 20px;">لمس برای خاموش کردن شمع‌ها</button>
+        </section>
+
+        <!-- ۱۱. پایان -->
+        <section class="section" id="end-section" style="display: none;">
+            <div class="glass-card" style="border-color: var(--neon-gold);">
+                <h1 style="font-size: 1.8rem; color: var(--neon-gold); margin-bottom: 20px;">مبینا...</h1>
+                <p style="line-height: 2.2; font-size: 1rem;">
+                    این فقط یه سایت نیست؛ یه هدیه کوچیکه برای کسی که حضورش برام ارزشمنده.<br>
+                    کاش می‌تونستم همین لحظه کنارت باشم.<br>
+                    تولدت مبارک دختر قشنگم.<br>
+                    امیدوارم نوزده‌سالگیت شروع یکی از قشنگ‌ترین فصل‌های زندگیت باشه.<br>
+                    و ایشالا سال‌های بعد، تولدت رو کنار هم جشن بگیریم.<br>
+                    دوستت دارم، بیشتر از چیزی که این صفحه بتونه نشون بده.
+
+                    خدایی من بلد نبودم از هوش مصنوعی پرسیدم ولی خو میدونی خیلی دوست دارم
+                </p>
+                <h3 style="color: var(--neon-pink); margin-top: 25px;">از طرف همونی که برات می‌میره<br>(امیر) ❤️</h3>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- 1. افکت کدهای ماتریکسی و ساخت تدریجی عکس ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const letters = "MOBINA19LOVEAMIR❤️0123456789";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#b026ff";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        let matrixInterval = setInterval(drawMatrix, 30);
+
+        // زمان‌بندی کل 6 ثانیه
+        window.onload = () => {
+            // 0 تا 3 ثانیه: کدهای ماتریکس
+            setTimeout(() => {
+                // 3 ثانیه: شروع ساخت عکس از بالا به پایین
+                const eyeBox = document.getElementById('eye-box');
+                eyeBox.style.opacity = 1;
+                
+                // انیمیشن باز شدن (ساخته شدن عکس)
+                gsap.to(eyeBox, { clipPath: 'inset(0% 0 0 0)', duration: 2.5, ease: "power2.inOut" });
+                
+                // روشن شدن تدریجی عکس
+                setTimeout(() => {
+                    document.getElementById('mobina-eyes').style.filter = "brightness(1.2) contrast(1.1) grayscale(0%) blur(0px)";
+                    document.getElementById('glitch').style.opacity = 0;
+                }, 1000);
+
+                // 5.5 ثانیه: نمایش متن و دکمه
+                setTimeout(() => {
+                    gsap.to("#intro-text", { opacity: 1, duration: 1 });
+                    clearInterval(matrixInterval); // توقف ماتریکس
+                    gsap.to("#matrix-canvas", { opacity: 0.1, duration: 1 });
+                }, 2500);
+
+            }, 3000);
+        };
+
+        // --- 2. ورود و موسیقی ---
+        const bgMusic = document.getElementById('bg-music');
+        let isPlaying = false;
+
+        function enterWorld() {
+            // تلاش برای پخش موسیقی
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                document.getElementById('music-toggle').innerText = '⏸';
+            }).catch(e => {
+                console.log("Autoplay blocked, user needs to click toggle.");
+            });
+            
+            document.getElementById('music-toggle').style.display = 'flex';
+
+            gsap.to("#intro-section", { opacity: 0, duration: 1, onComplete: () => {
+                document.getElementById("intro-section").style.display = "none";
+                document.getElementById("main-app").style.display = "block";
+                initApp();
+            }});
+        }
+
+        function toggleMusic() {
+            if (isPlaying) {
+                bgMusic.pause();
+                document.getElementById('music-toggle').innerText = '🎵';
+            } else {
+                bgMusic.play();
+                document.getElementById('music-toggle').innerText = '⏸';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // --- 3. راه‌اندازی بخش‌های اصلی ---
+        function initApp() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+            // ۱۹ دلیل
+            const reasons = [
+                "لبخند قشنگت", "نگاه خاصت", "انرژی خوبی که منتقل می‌کنی", "شخصیت دوست‌داشتنی‌ات",
+                "خنده‌های شیرینت", "آرزوهای قشنگت", "متفاوت بودنت", "مهربونی بی‌پایانت",
+                "دلگرمی‌هات", "صدای آرامش‌بخش", "حساسیت‌های قشنگت", "امیدواریت",
+                "بغض‌های پنهونت", "قدرتت", "زیبایی چشات", "سادگی دلت",
+                "وفاداریت", "دوست داشتن بی‌قید و شرطت", "اینکه فقط تو، تویی"
+            ];
+            const grid = document.getElementById('reasons-grid');
+            reasons.forEach((reason, index) => {
+                const card = document.createElement('div');
+                card.className = 'reason-card';
+                card.innerHTML = `<div class="front">${index + 1}</div><div class="back">${reason}</div>`;
+                card.onclick = () => {
+                    const front = card.querySelector('.front');
+                    const back = card.querySelector('.back');
+                    if (front.style.display !== 'none') {
+                        front.style.display = 'none';
+                        back.style.display = 'block';
+                        gsap.fromTo(card, {scale: 0.9}, {scale: 1, duration: 0.3});
+                    } else {
+                        front.style.display = 'block';
+                        back.style.display = 'none';
+                    }
+                };
+                grid.appendChild(card);
+            });
+
+            // ۱۹ آرزو (ویرایش شده برای حذف هرگونه اشاره به آدم دیگه)
+            const wishes = [
+                "کاش همیشه بخندی، حتی وقتی دنیا سخت‌گیره.",
+                "آرزو می‌کنم به هرچی که لیاقتش رو داری برسی.",
+                "امیدوارم هیچ‌وقت قشنگی قلبت کم نشه.",
+                "خدا کنه همیشه تو کارهایی که عاشقشی موفق باشی.",
+                "کاش هیچ‌وقت غم به دلت راه پیدا نکنه.",
+                "آرزو دارم همیشه اطرافت پر از آدم‌های خوب باشه، ولی من از همه بیشتر.",
+                "کاش خواب‌های قشنگت تعبیر بشن.",
+                "امیدوارم سال جدید پر از سفر و ماجراجویی باشه برات.",
+                "آرزو می‌کنم تو هر جمعی بدرخشی، همونطور که همیشه می‌درخشی.",
+                "کاش هیچ‌وقت برای رسیدن به خواسته‌هات خسته نشی.",
+                "امیدوارم یه روزی به خودت افتخار کنی، مثل من که الان بهت افتخار می‌کنم.",
+                "کاش همیشه یه تکیه‌گاه محکم پشتت باشه، و اون من باشم.",
+                "آرزو دارم هیچ‌وقت احساس تنهایی نکنی.",
+                "کاش لبخندت هیچ‌وقت از صورتت محو نشه.",
+                "امیدوارم همیشه به آرامش برسی.",
+                "کاش تمام آرزوهای قشنگت یکی یکی برآورده بشن.",
+                "آرزو می‌کنم خوشبختی‌ت رو فقط با دستای خودم بسازم.",
+                "کاش تولدت شروع بهترین سال زندگیت باشه.",
+                "آرزو دارم سال بعد همین موقع، دست تو دستم باشه و این‌ها رو با هم بخونیم."
+            ];
+            const wishList = document.getElementById('wishes-list');
+            wishes.forEach(w => {
+                const li = document.createElement('li');
+                li.innerHTML = `✨ ${w}`;
+                wishList.appendChild(li);
+            });
+
+            initMemoryGame();
+        }
+
+        // --- 4. تعاملات (نامه، عکس، رمز و آینه) ---
+        function openLetter() {
+            document.querySelector('.envelope').style.display = 'none';
+            const letter = document.getElementById('letter-text');
+            letter.style.display = 'block';
+            gsap.from(letter, { opacity: 0, y: 30, duration: 1 });
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.5 }, colors: ['#ff2a85', '#ffd700'] });
+        }
+
+        function checkSecret() {
+            const input = document.getElementById('secret-input').value;
+            const result = document.getElementById('secret-message');
+            if (input === '19' || input === '۱۹') {
+                result.style.display = 'block';
+                result.innerHTML = "مبینا... من حتی وقتی بهت فکر می‌کنم، لبخند روی لبم میاد. تو یه نعمت بزرگی تو زندگی منی که هیچ‌وقت نمی‌خوام از دستش بدم. حتی اگه کل دنیا بر علیه من باشه، تا وقتی که تو هستی، من قوی‌ترین آدم دنیام. من فقط تو رو می‌خوام و بس. هیچ‌کس دیگه‌ای تو دنیا برام تو نمی‌شه. ❤️";
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+            } else {
+                result.style.display = 'block';
+                result.innerText = "رمز اشتباهه عزیزم! (راهنما: سنت)";
+                result.style.color = "var(--neon-pink)";
+            }
+        }
+
+        function openImage(element) {
+            const imgSrc = element.querySelector('img').src;
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.inset = '0';
+            modal.style.background = 'rgba(0,0,0,0.9)';
+            modal.style.zIndex = '9999';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.innerHTML = `<img src="${imgSrc}" style="max-width:90%; max-height:90%; border-radius:15px; border:2px solid var(--neon-gold);">`;
+            modal.onclick = () => modal.remove();
+            document.body.appendChild(modal);
+        }
+
+        const mirrorTexts = [
+            "تو قشنگ‌ترین دختر دنیا نیستی... تو قشنگ‌ترین دختر دنیای منی! ✨",
+            "اون لبخندت ارزش یه کهکشان ستاره رو داره. 🌌",
+            "هیچ‌کس نمی‌تونه مثل تو قلب من رو بلرزونه. ❤️",
+            "تو یه اثر هنری از طرف خدا هستی که من عاشق تماشا کردنشم. 🎨",
+            "هر روز که می‌گذره، بیشتر عاشق جزئیاتت می‌شم. 🌸"
+        ];
+        function magicMirror() {
+            const result = document.getElementById('mirror-result');
+            const randomText = mirrorTexts[Math.floor(Math.random() * mirrorTexts.length)];
+            result.innerText = randomText;
+            gsap.fromTo(result, {opacity: 0, scale: 0.8}, {opacity: 1, scale: 1, duration: 0.5});
+            confetti({ particleCount: 30, spread: 60, origin: { y: 0.7 }, colors: ['#ff2a85', '#ff69b4', '#ffd700'] });
+        }
+
+        // --- 5. بازی‌ها ---
+        function initMemoryGame() {
+            const grid = document.getElementById('memory-grid');
+            const emojis = ['❤️', '🌹', '✨', '🎁', '❤️', '🌹', '✨', '🎁'];
+            emojis.sort(() => 0.5 - Math.random());
+            let flippedCards = [];
+            let matched = 0;
+
+            emojis.forEach((emoji) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.emoji = emoji;
+                card.innerHTML = '?';
+                card.onclick = () => {
+                    if (flippedCards.length === 2 || card.classList.contains('flipped')) return;
+                    card.classList.add('flipped');
+                    card.innerHTML = card.dataset.emoji;
+                    flippedCards.push(card);
+
+                    if (flippedCards.length === 2) {
+                        if (flippedCards[0].dataset.emoji === flippedCards[1].dataset.emoji) {
+                            matched += 2;
+                            flippedCards = [];
+                            if (matched === emojis.length) {
+                                setTimeout(() => { alert("آفرین! همه کارت‌ها رو پیدا کردی ❤️"); confetti({ particleCount: 100 }); }, 500);
+                            }
+                        } else {
+                            setTimeout(() => {
+                                flippedCards.forEach(c => { c.classList.remove('flipped'); c.innerHTML = '?'; });
+                                flippedCards = [];
+                            }, 800);
+                        }
+                    }
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        let heartGameInterval;
+        let heartScore = 0;
+        function startHeartGame() {
+            const area = document.getElementById('heart-game-area');
+            area.style.display = 'block';
+            area.innerHTML = '<div id="heart-score" style="position:absolute; top:10px; right:10px; z-index:20; font-weight:bold; color:var(--neon-gold);">امتیاز: 0</div>';
+            heartScore = 0;
+            
+            clearInterval(heartGameInterval);
+            heartGameInterval = setInterval(() => {
+                if (heartScore >= 15) {
+                    clearInterval(heartGameInterval);
+                    alert("برنده شدی! تو بهترینی ❤️");
+                    confetti({ particleCount: 100, spread: 70 });
+                    return;
+                }
+
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.style.position = 'absolute';
+                heart.style.left = Math.random() * 90 + '%';
+                heart.style.top = '-30px';
+                heart.style.fontSize = '30px';
+                heart.style.cursor = 'pointer';
+                heart.style.transition = 'top 3s linear';
+                
+                area.appendChild(heart);
+                setTimeout(() => { heart.style.top = '100%'; }, 50);
+                
+                heart.onclick = () => {
+                    heartScore++;
+                    document.getElementById('heart-score').innerText = 'امتیاز: ' + heartScore;
+                    heart.remove();
+                };
+
+                setTimeout(() => { heart.remove(); }, 3000);
+            }, 600);
+        }
+
+        // --- 6. کیک و میکروفون ---
+        let micActive = false;
+        let audioContext, analyser;
+
+        async function enableMic() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                micActive = true;
+                
+                // تغییر متن دکمه
+                const btns = document.querySelectorAll('.btn-luxury');
+                btns.forEach(btn => {
+                    if(btn.innerHTML.includes('میکروفون')) btn.innerText = "میکروفون فعال است، فوت کن!";
+                });
+                
+                checkBlow(dataArray);
+            } catch (err) {
+                alert("دسترسی به میکروفون امکان‌پذیر نیست. از دکمه جایگزین استفاده کنید.");
+            }
+        }
+
+        function checkBlow(dataArray) {
+            if (!micActive) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+            let average = sum / dataArray.length;
+
+            if (average > 60) {
+                blowCandles();
+            } else {
+                requestAnimationFrame(() => checkBlow(dataArray));
+            }
+        }
+
+        function blowCandles() {
+            if (micActive && audioContext) {
+                micActive = false;
+                audioContext.close();
+            }
+            
+            const flame = document.getElementById('flame');
+            if (flame) {
+                gsap.to(flame, { opacity: 0, scale: 0, duration: 0.5, onComplete: () => { flame.style.display = 'none'; }});
+            }
+
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#ffd700', '#ff2a85', '#b026ff'] });
+
+            setTimeout(() => {
+                document.getElementById('cake-section').style.display = 'none';
+                const endSection = document.getElementById('end-section');
+                endSection.style.display = 'flex';
+                endSection.scrollIntoView({behavior: 'smooth'});
+                gsap.from(endSection, { opacity: 0, duration: 1.5 });
+                
+                let duration = 5 * 1000;
+                let animationEnd = Date.now() + duration;
+                let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+                let interval = setInterval(function() {
+                    let timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) return clearInterval(interval);
+                    let particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } }));
+                }, 250);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
